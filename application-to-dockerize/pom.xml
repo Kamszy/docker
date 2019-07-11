@@ -16,6 +16,7 @@
 
   <properties>
     <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
+    <docker.image.prefix>docker-example</docker.image.prefix>
   </properties>
 
   <dependencies>
@@ -49,5 +50,71 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <build>
+        <!--Make sure that artifact being unpacked-->
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>unpack</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>${project.artifactId}</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!--docker plugin-->
+          <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>dockerfile-maven-plugin</artifactId>
+            <version>1.4.9</version>
+            <configuration>
+              <repository>${docker.image.prefix}/${project.artifactId}</repository>
+            </configuration>
+            <executions>
+              <execution>
+                <id>build-image-and-tag-latest</id>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <classifier>docker-info-version-ts</classifier>
+                  <tag>latest</tag>
+                </configuration>
+              </execution>
+              <execution>
+                <id>tag-image-version</id>
+                <goals>
+                  <goal>tag</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <classifier>docker-info-version</classifier>
+                  <tag>${project.version}</tag>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
