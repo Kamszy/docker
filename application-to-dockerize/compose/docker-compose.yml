@@ -1,0 +1,8 @@
+version: '3' #version of docker compose
+services: #Services which are going to be spawn thanks to compose
+  dummy: #Name of the service (in this case for application-to-dockerize)
+    image: "docker-example/application-to-dockerize:latest" #Docker image
+    ports: #Port forwarding
+      - "8080:8080"
+    volumes: #Volume mounting.
+      - "/home/szymanka/temp:/files"
